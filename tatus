@@ -1,0 +1,43 @@
+[1mdiff --cc lib/db.js[m
+[1mindex 261d9a2,46ec601..0000000[m
+[1m--- a/lib/db.js[m
+[1m+++ b/lib/db.js[m
+[36m@@@ -3,30 -3,15 +3,31 @@@[m [mconst Tapable = require('tapable'[m
+  class DB extends Tapable {[m
+    constructor(options) {[m
+      // TODO[m
+[31m-     super()[m
+[31m -    super();[m
+[32m++[m
+      this.options = options[m
+    }[m
+[31m -[m
+[31m -  request() {[m
+[32m +  [m
+[32m +  request(options) {[m
+      // TODO[m
+[31m -    return new Promise( res => {[m
+[31m -      res({ retcode: 0, res: { msg: 'hello world' } })[m
+[31m -    })[m
+[32m +   return new Promise((resolve, reject) => {[m
+[32m +     const opts = this.applyPluginsWaterfall('options', Object.assign({}, this.options, options))[m
+[32m +     this.applyPluginsBailResult('endpoint', opts)[m
+[32m +      .then( res => {[m
+[32m +        const hasError = this.applyPluginsBailResult('judge', res, opts)[m
+[32m +        if(hasError === true ) {[m
+[32m +          res = this.applyPluginsWaterfall('error', res, opts)[m
+[32m +          reject(res)[m
+[32m +        } else {[m
+[32m +          res = this.applyPluginsWaterfall('success', res, opts)[m
+[32m +          resolve(res)[m
+[32m +        }[m
+[32m +      },res => {[m
+[32m +          res = this.applyPluginsWaterfall('error', res, opts)[m
+[32m +          reject(res)[m
+[32m +        }[m
+[32m +      )[m
+[32m +   })[m
+[32m++[m
+    }[m
+  }[m
+  [m
